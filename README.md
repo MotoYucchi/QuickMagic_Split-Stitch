@@ -53,7 +53,7 @@ This project resolves these constraints through two dedicated stages:
 
 ```bash
 # Clone repository
-git clone https://github.com/motoyucchi/QuickMagic_Split-Stitch.git
+git clone https://github.com/MotoYucchi/QuickMagic_Split-Stitch.git
 cd QuickMagic_Split-Stitch
 
 # Setup virtual environment with uv and install dependencies
@@ -187,6 +187,12 @@ pytest -v
 ```
 
 The suite includes property-based tests verifying chunk coverage invariants (Hypothesis), FFmpeg end-to-end splitting and verification, and round-trip codec tests.
+
+---
+
+## Author
+
+- **MotoYucchi** ([GitHub](https://github.com/MotoYucchi))
 
 ---
 

@@ -53,7 +53,7 @@ QuickMagic は Web 上で利用可能な AI モーションキャプチャサー
 
 ```bash
 # リポジトリのクローン
-git clone https://github.com/motoyucchi/QuickMagic_Split-Stitch.git
+git clone https://github.com/MotoYucchi/QuickMagic_Split-Stitch.git
 cd QuickMagic_Split-Stitch
 
 # uv を使用した仮想環境の構築と依存パッケージの導入
@@ -185,6 +185,12 @@ pytest -v
 ```
 
 Hypothesis による性質ベーステスト、FFmpeg による動画切り出しの実機検証、およびモーションコーデックの往復テストが含まれています。
+
+---
+
+## 作成者 (Author)
+
+- **MotoYucchi** ([GitHub](https://github.com/MotoYucchi))
 
 ---
 
