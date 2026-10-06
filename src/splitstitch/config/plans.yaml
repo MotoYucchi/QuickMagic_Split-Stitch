@@ -1,0 +1,54 @@
+version: "2026-10-07"
+size_unit: "decimal" # decimal = 10^6 bytes, binary = 2^20 bytes
+safety_factor: 0.95
+duration_margin_sec: 0.1
+min_short_side: 1080
+
+plans:
+  free:
+    display_name: "Free"
+    allowed_fps: ["30/1"]
+    max_duration_sec:
+      "30/1": 30.0
+    max_size_mb: 50
+    export_formats: ["fbx"]
+  basic:
+    display_name: "Basic"
+    allowed_fps: ["24/1", "30/1", "60/1", "120/1"]
+    max_duration_sec:
+      "24/1": 60.0
+      "30/1": 60.0
+      "60/1": 30.0
+      "120/1": 15.0
+    max_size_mb: 100
+    export_formats: ["fbx", "bvh", "vmd", "c4d", "bip"]
+  pro:
+    display_name: "Pro"
+    allowed_fps: ["24/1", "30/1", "60/1", "120/1"]
+    max_duration_sec:
+      "24/1": 90.0
+      "30/1": 90.0
+      "60/1": 45.0
+      "120/1": 22.0
+    max_size_mb: 200
+    export_formats: ["fbx", "bvh", "vmd", "c4d", "bip"]
+  max:
+    display_name: "Max"
+    allowed_fps: ["24/1", "30/1", "60/1", "120/1"]
+    max_duration_sec:
+      "24/1": 120.0
+      "30/1": 120.0
+      "60/1": 60.0
+      "120/1": 30.0
+    max_size_mb: 300
+    export_formats: ["fbx", "bvh", "vmd", "c4d", "bip"]
+  studio:
+    display_name: "Studio"
+    allowed_fps: ["24/1", "30/1", "60/1", "120/1"]
+    max_duration_sec:
+      "24/1": 120.0
+      "30/1": 120.0
+      "60/1": 60.0
+      "120/1": 30.0
+    max_size_mb: 400
+    export_formats: ["fbx", "bvh", "vmd", "c4d", "bip"]
