@@ -76,7 +76,9 @@ def create_initial_manifest(
     ffmpeg_version: Optional[str] = None,
 ) -> SessionManifest:
     """Create a fully typed SessionManifest from probe and planner results."""
+    from splitstitch.core.probe import get_ffmpeg_version
     created_at = datetime.datetime.now(datetime.timezone.utc).isoformat()
+    ff_ver = ffmpeg_version or get_ffmpeg_version()
 
     source_meta = SourceMetadata(
         path=str(probe.path),
@@ -100,7 +102,7 @@ def create_initial_manifest(
         tool=ToolInfo(
             name="splitstitch",
             version="0.1.0",
-            ffmpeg_version=ffmpeg_version,
+            ffmpeg_version=ff_ver,
         ),
         session_id=session_id,
         created_at=created_at,

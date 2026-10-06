@@ -68,7 +68,19 @@ def get_ffmpeg_path() -> str:
     local_bin = Path.home() / ".local" / "bin" / "ffmpeg"
     if local_bin.exists() and os.access(local_bin, os.X_OK):
         return str(local_bin)
-    raise FileNotFoundError("ffmpeg not found in PATH or ~/.local/bin")
+def get_ffmpeg_version() -> Optional[str]:
+    """Retrieve FFmpeg version string."""
+    try:
+        bin_path = get_ffmpeg_path()
+        res = subprocess.run([bin_path, "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
+        first_line = res.stdout.splitlines()[0]
+        # Example: 'ffmpeg version 7.0.2-static ...'
+        parts = first_line.split()
+        if len(parts) >= 3 and parts[0] == "ffmpeg" and parts[1] == "version":
+            return parts[2]
+        return first_line
+    except Exception:
+        return None
 
 
 def probe_video(video_path: Path | str, fast: bool = False) -> ProbeResult:
