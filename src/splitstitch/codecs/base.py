@@ -16,8 +16,9 @@ class CodecCapability:
     extensions: list[str]
     can_read: bool = True
     can_write: bool = True
-    is_time_based: bool = True  # True if supports arbitrary rational FPS, False if fixed (e.g. VMD 30fps)
+    is_time_based: bool = True  # True if arbitrary rational FPS in header, False if integer frame indexed (e.g. VMD)
     supports_blendshapes: bool = False
+    max_fps: Optional[int] = None
 
 
 class BaseCodec(ABC):

@@ -131,7 +131,7 @@ splitstitch stitch \
 | :--- | :--- | :--- | :--- | :--- |
 | **BVH** | `.bvh` | Native parser & exporter | Arbitrary (Rational FPS) | Supports hierarchies, channels, Euler angle unwrap, and standard FPS snapping. |
 | **FBX** | `.fbx` | Binary node I/O + Template substitution | Arbitrary (KTime) | Uses Chunk #1 FBX as a structural template and replaces AnimationCurve arrays (`KeyTime` / `KeyValueFloat`). Preserves meshes and rigs. |
-| **VMD** | `.vmd` | Binary record I/O | Fixed 30 fps | Per MMD format specifications, frame indices are integers at 30 fps. Non-30 fps clips are automatically resampled with warnings. |
+| **VMD** | `.vmd` | Binary record I/O | Up to 60 fps | Supported up to 60 fps in MMD and compatible tools (such as MikuMikuMoving). Clips up to 60 fps are preserved directly; clips exceeding 60 fps (e.g. 120 fps) are automatically resampled to 60 fps. Supports morph expressions. |
 
 > **Note**: Proprietary vendor presets such as 3ds Max BIP, Cinema 4D native format, or iClone RLMotion cannot be directly stitched due to unpublished container specifications. We recommend exporting as standard FBX or BVH from QuickMagic.
 
@@ -145,8 +145,8 @@ splitstitch stitch \
    - When utilizing frame-rate scaling techniques on restricted subscription tiers, please ensure compliance with the platform's fair-use policies and service agreements.
 3. **Subject Constraints**:
    - The pipeline assumes a single subject in continuous capture. Footage featuring multiple overlapping persons, abrupt camera cuts, or prolonged frame exits may lead to joint tracking discontinuity across chunk boundaries.
-4. **VMD Format Frame Rate Limit**:
-   - Vocaloid Motion Data (.vmd) is architecturally constrained to 30 fps. 60 fps or 120 fps data cannot be losslessly stored in VMD without resampling to 30 fps.
+4. **VMD Format Frame Rate Support (Up to 60 fps)**:
+   - Vocaloid Motion Data (.vmd) records keyframes using integer frame indices. MMD and compatible tools (such as MikuMikuMoving) support 60 fps motion playback. Split & Stitch preserves motion up to 60 fps (including 24, 30, and 60 fps) directly in VMD. Motions exceeding 60 fps (such as 120 fps) are automatically resampled to the 60 fps ceiling upon export (use FBX or BVH if you need to retain 120 fps natively).
 
 ---
 

@@ -71,6 +71,58 @@ def test_vmd_roundtrip(tmp_path: Path) -> None:
     assert read_clip.curves["笑い"][0] == pytest.approx(0.8, abs=1e-3)
 
 
+def test_vmd_60fps_preservation(tmp_path: Path) -> None:
+    """Verify VMDCodec preserves 60fps data without downsampling to 30fps."""
+    names = ["全ての親", "センター"]
+    parents = np.array([-1, 0], dtype=np.int32)
+    offsets = np.zeros((2, 3), dtype=np.float64)
+    skeleton = Skeleton(names=names, parents=parents, rest_offsets=offsets, root_index=0)
+
+    F = 60  # 1 second of 60fps
+    timebase = TimeBase.from_fps(60)
+    local_rot = np.zeros((F, 2, 4), dtype=np.float64)
+    local_rot[..., 3] = 1.0
+    root_pos = np.zeros((F, 3), dtype=np.float64)
+
+    clip = MotionClip(skeleton=skeleton, timebase=timebase, local_rot=local_rot, root_pos=root_pos)
+
+    vmd_file = tmp_path / "test_60fps.vmd"
+    codec = VMDCodec()
+    codec.write(clip, vmd_file)
+
+    # Read back at 60fps
+    read_clip = codec.read(vmd_file, fps=60)
+    assert read_clip.frame_count == 60
+    assert float(read_clip.timebase.fps) == 60.0
+    assert read_clip.duration_sec == pytest.approx(1.0)
+
+
+def test_vmd_120fps_resampled_to_60fps(tmp_path: Path) -> None:
+    """Verify VMDCodec resamples 120fps data to the 60fps upper limit."""
+    names = ["全ての親", "センター"]
+    parents = np.array([-1, 0], dtype=np.int32)
+    offsets = np.zeros((2, 3), dtype=np.float64)
+    skeleton = Skeleton(names=names, parents=parents, rest_offsets=offsets, root_index=0)
+
+    F = 120  # 1 second of 120fps
+    timebase = TimeBase.from_fps(120)
+    local_rot = np.zeros((F, 2, 4), dtype=np.float64)
+    local_rot[..., 3] = 1.0
+    root_pos = np.zeros((F, 3), dtype=np.float64)
+
+    clip = MotionClip(skeleton=skeleton, timebase=timebase, local_rot=local_rot, root_pos=root_pos)
+
+    vmd_file = tmp_path / "test_120fps.vmd"
+    codec = VMDCodec()
+    codec.write(clip, vmd_file)
+
+    # When read back at 60fps, exactly 60 frames should be present
+    read_clip = codec.read(vmd_file, fps=60)
+    assert read_clip.frame_count == 60
+    assert read_clip.duration_sec == pytest.approx(1.0)
+
+
+
 def test_binary_fbx_io() -> None:
     # Test low-level binary FBX parser and serializer
     nodes = [

@@ -86,7 +86,7 @@
 - `BaseCodec`: 全コーデックが実装する基底インターフェース（`read`, `write`, `capability`）。
 - `BVHCodec`: ASCII テキスト形式の Biovision Hierarchy の読み書き。階層構造の解析、オイラー角アンラップ、標準 FPS へのスナップ処理を実装。
 - `FBXCodec`: バイナリ FBX の低レベルノード解析と、テンプレート置換方式による書き出し。
-- `VMDCodec`: MMD 向けのバイナリレコード解析と、30 fps リサンプリングを伴う書き出し。
+- `VMDCodec`: MMD および互換ツール向けのバイナリレコード解析と、最大 60 fps 対応（60 fps 超は 60 fps へ自動リサンプル）の書き出し。
 
 ---
 

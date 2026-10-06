@@ -3,8 +3,9 @@
 from __future__ import annotations
 
 import struct
+from fractions import Fraction
 from pathlib import Path
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Union
 import numpy as np
 
 from splitstitch.codecs.base import BaseCodec, CodecCapability
@@ -21,11 +22,12 @@ class VMDCodec(BaseCodec):
             extensions=[".vmd"],
             can_read=True,
             can_write=True,
-            is_time_based=False,  # Fixed 30 FPS timebase
+            is_time_based=False,  # Frame index-based (supports up to 60 FPS in MMD / MMM)
             supports_blendshapes=True,
+            max_fps=60,
         )
 
-    def read(self, path: Path | str) -> MotionClip:
+    def read(self, path: Path | str, fps: Optional[Union[int, float, Fraction]] = None) -> MotionClip:
         p = Path(path).resolve()
         with open(p, "rb") as f:
             data = f.read()
@@ -111,7 +113,7 @@ class VMDCodec(BaseCodec):
             root_index=root_idx,
         )
 
-        timebase = TimeBase.from_fps(30)
+        timebase = TimeBase.from_fps(Fraction(fps) if fps is not None else 30)
         return MotionClip(
             skeleton=skeleton,
             timebase=timebase,
@@ -125,9 +127,14 @@ class VMDCodec(BaseCodec):
         p = Path(output_path).resolve()
         p.parent.mkdir(parents=True, exist_ok=True)
 
-        # VMD is strictly 30fps. If clip has another timebase, resample to 30fps
-        if clip.timebase.fps != 30:
-            target_clip = resample_clip(clip, 30)
+        # VMD supports up to 60fps in official MMD and compatible tools (such as MikuMikuMoving).
+        # Clips up to 60fps (24, 30, 60fps) are preserved directly.
+        # Clips exceeding 60fps (e.g. 120fps) are automatically resampled to 60fps.
+        fps_float = float(clip.timebase.fps)
+        if fps_float > 60.0 + 1e-4:
+            target_clip = resample_clip(clip, 60)
+        elif abs(fps_float - 59.94) < 0.1:
+            target_clip = resample_clip(clip, 60)
         else:
             target_clip = clip
 
