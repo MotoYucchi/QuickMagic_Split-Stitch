@@ -62,6 +62,12 @@ source .venv/bin/activate  # Windows の場合は .venv\Scripts\activate
 uv pip install -e ".[dev]"
 ```
 
+### ワンクリック起動（推奨）
+
+- **Windows**: `run.bat` をダブルクリック（またはコマンドプロンプトで実行）
+  - `uv` の導入確認・自動インストール、依存関係同期、FFmpeg 検出を行い、言語選択（日本語 / 英語）を経て GUI を起動します。
+- **Linux / macOS**: `./run.sh` を実行
+
 FFmpeg がインストールされていない場合は、各 OS のパッケージマネージャまたは公式サイトより導入してください。
 - Ubuntu: `sudo apt install ffmpeg`
 - macOS: `brew install ffmpeg`
