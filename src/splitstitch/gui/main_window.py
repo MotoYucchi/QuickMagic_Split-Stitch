@@ -241,7 +241,7 @@ class MainWindow(QMainWindow):
 
         # Video Info Label
         self.video_info_label = QLabel("動画が選択されていません")
-        self.video_info_label.setStyleSheet("color: #718096; font-size: 12px; margin-left: 4px;")
+        self.video_info_label.setStyleSheet("color: #94a3b8; font-size: 12px; margin-left: 4px;")
         layout.addWidget(self.video_info_label)
 
         # Plan & Mode Box
@@ -295,12 +295,12 @@ class MainWindow(QMainWindow):
         # Plan Simulation Card
         self.sim_card = QFrame()
         self.sim_card.setFrameShape(QFrame.StyledPanel)
-        self.sim_card.setStyleSheet("background-color: #f7fafc; border: 1px solid #e2e8f0; border-radius: 6px; padding: 10px;")
+        self.sim_card.setStyleSheet("background-color: #1e293b; border: 1px solid #334155; border-radius: 6px; padding: 12px;")
         sim_layout = QVBoxLayout(self.sim_card)
         self.sim_title = QLabel("分割シミュレーション")
-        self.sim_title.setStyleSheet("font-weight: bold; color: #2d3748;")
+        self.sim_title.setStyleSheet("font-weight: bold; color: #93c5fd;")
         self.sim_desc = QLabel("動画を選択すると、分割本数と各チャンクの尺・予想容量がここに表示されます。")
-        self.sim_desc.setStyleSheet("color: #4a5568;")
+        self.sim_desc.setStyleSheet("color: #cbd5e1;")
         sim_layout.addWidget(self.sim_title)
         sim_layout.addWidget(self.sim_desc)
         layout.addWidget(self.sim_card)
@@ -308,7 +308,7 @@ class MainWindow(QMainWindow):
         # Collapsible Advanced Settings
         self.advanced_btn = QPushButton("▼ 詳細設定を表示")
         self.advanced_btn.setFlat(True)
-        self.advanced_btn.setStyleSheet("text-align: left; font-size: 12px; color: #4a5568;")
+        self.advanced_btn.setStyleSheet("text-align: left; font-size: 12px; color: #60a5fa; background: transparent; border: none; padding: 2px;")
         self.advanced_btn.clicked.connect(self._toggle_advanced_split)
         layout.addWidget(self.advanced_btn)
 
@@ -356,7 +356,7 @@ class MainWindow(QMainWindow):
         # Execute Button
         self.btn_run_split = QPushButton("動画分割を実行")
         self.btn_run_split.setStyleSheet(
-            "background-color: #3182ce; color: white; font-weight: bold; padding: 10px; font-size: 14px; border-radius: 6px;"
+            "background-color: #2563eb; color: #ffffff; font-weight: bold; padding: 10px; font-size: 14px; border: 1px solid #1d4ed8; border-radius: 6px;"
         )
         self.btn_run_split.clicked.connect(self._run_split)
         layout.addWidget(self.btn_run_split)
@@ -403,7 +403,7 @@ class MainWindow(QMainWindow):
 
         # Matched files status
         self.stitch_files_status = QLabel("マニフェストとモーションフォルダを選択してください")
-        self.stitch_files_status.setStyleSheet("color: #718096; font-size: 12px; margin-left: 4px;")
+        self.stitch_files_status.setStyleSheet("color: #94a3b8; font-size: 12px; margin-left: 4px;")
         layout.addWidget(self.stitch_files_status)
 
         # Output File Picker
@@ -420,7 +420,7 @@ class MainWindow(QMainWindow):
         # Advanced Settings for Stitching
         self.stitch_adv_btn = QPushButton("▼ 詳細設定を表示")
         self.stitch_adv_btn.setFlat(True)
-        self.stitch_adv_btn.setStyleSheet("text-align: left; font-size: 12px; color: #4a5568;")
+        self.stitch_adv_btn.setStyleSheet("text-align: left; font-size: 12px; color: #60a5fa; background: transparent; border: none; padding: 2px;")
         self.stitch_adv_btn.clicked.connect(self._toggle_advanced_stitch)
         layout.addWidget(self.stitch_adv_btn)
 
@@ -451,7 +451,7 @@ class MainWindow(QMainWindow):
         # Execute Button
         self.btn_run_stitch = QPushButton("モーション結合を実行")
         self.btn_run_stitch.setStyleSheet(
-            "background-color: #38a169; color: white; font-weight: bold; padding: 10px; font-size: 14px; border-radius: 6px;"
+            "background-color: #16a34a; color: #ffffff; font-weight: bold; padding: 10px; font-size: 14px; border: 1px solid #15803d; border-radius: 6px;"
         )
         self.btn_run_stitch.clicked.connect(self._run_stitch)
         layout.addWidget(self.btn_run_stitch)
@@ -492,7 +492,7 @@ class MainWindow(QMainWindow):
                     f"解析完了: {p.display_width}x{p.display_height} | {float(p.fps):.2f} fps | "
                     f"計 {p.frame_count} フレーム ({p.duration_sec:.1f} 秒)"
                 )
-                self.video_info_label.setStyleSheet("color: #2b6cb0; font-size: 12px; margin-left: 4px;")
+                self.video_info_label.setStyleSheet("color: #60a5fa; font-size: 12px; margin-left: 4px;")
                 self._recalculate_plan_preview()
             except Exception as e:
                 QMessageBox.critical(self, "動画解析エラー", f"動画の解析に失敗しました:\n{e}")
@@ -586,6 +586,7 @@ class MainWindow(QMainWindow):
         self.btn_run_split.setEnabled(True)
         self.split_progress.setVisible(False)
         self.split_status_label.setText(f"分割が正常に完了しました！ 出力先: {out_dir}")
+        self.split_status_label.setStyleSheet("color: #4ade80; font-weight: bold;")
         QMessageBox.information(
             self,
             "完了",
@@ -596,6 +597,7 @@ class MainWindow(QMainWindow):
         self.btn_run_split.setEnabled(True)
         self.split_progress.setVisible(False)
         self.split_status_label.setText(f"エラー: {error_msg}")
+        self.split_status_label.setStyleSheet("color: #f87171; font-weight: bold;")
         QMessageBox.critical(self, "分割失敗", f"分割中にエラーが発生しました:\n{error_msg}")
 
     # ---------------- Stitch Tab Actions ----------------
@@ -631,14 +633,14 @@ class MainWindow(QMainWindow):
             self.stitch_files_status.setText(
                 f"照合成功: 全 {len(matched)} 本のチャンクモーションが正しく認識されました (形式: {matched[0].suffix})"
             )
-            self.stitch_files_status.setStyleSheet("color: #38a169; font-weight: bold; margin-left: 4px;")
+            self.stitch_files_status.setStyleSheet("color: #4ade80; font-weight: bold; margin-left: 4px;")
             # Auto set default output filename if empty
             if not self.stitch_output_edit.text():
                 def_out = Path(d_str).parent / f"Merged_{Path(manifest.source.path).stem}{matched[0].suffix}"
                 self.stitch_output_edit.setText(str(def_out))
         except Exception as e:
             self.stitch_files_status.setText(f"ファイル照合エラー: {e}")
-            self.stitch_files_status.setStyleSheet("color: #e53e3e; margin-left: 4px;")
+            self.stitch_files_status.setStyleSheet("color: #f87171; margin-left: 4px;")
 
     def _run_stitch(self) -> None:
         m_str = self.stitch_manifest_edit.text()
@@ -692,7 +694,7 @@ class MainWindow(QMainWindow):
         self.qc_summary_label.setText(
             f"結合完了: 総尺 {report.total_duration_sec:.2f}秒 ({report.total_frames}フレーム) | 品質: {status_text}"
         )
-        self.qc_summary_label.setStyleSheet("color: #38a169; font-weight: bold;")
+        self.qc_summary_label.setStyleSheet("color: #4ade80; font-weight: bold;")
 
         QMessageBox.information(
             self,
@@ -707,17 +709,173 @@ class MainWindow(QMainWindow):
         self.btn_run_stitch.setEnabled(True)
         self.stitch_progress.setVisible(False)
         self.qc_summary_label.setText(f"エラー: {err_msg}")
-        self.qc_summary_label.setStyleSheet("color: #e53e3e;")
+        self.qc_summary_label.setStyleSheet("color: #f87171;")
         QMessageBox.critical(self, "結合失敗", f"結合処理中にエラーが発生しました:\n{err_msg}")
 
     def _apply_styling(self) -> None:
         self.setStyleSheet("""
-            QMainWindow { background-color: #ffffff; }
-            QTabWidget::pane { border: 1px solid #e2e8f0; background: white; border-radius: 6px; }
-            QTabBar::tab { background: #edf2f7; color: #4a5568; padding: 10px 24px; font-weight: bold; font-size: 13px; border-top-left-radius: 6px; border-top-right-radius: 6px; }
-            QTabBar::tab:selected { background: #ffffff; color: #2b6cb0; border: 1px solid #e2e8f0; border-bottom: none; }
-            QGroupBox { font-weight: bold; border: 1px solid #e2e8f0; border-radius: 6px; margin-top: 10px; padding-top: 14px; }
-            QGroupBox::title { subcontrol-origin: margin; left: 10px; padding: 0 4px; }
-            QLineEdit { border: 1px solid #cbd5e0; border-radius: 4px; padding: 6px 10px; }
-            QPushButton { border-radius: 4px; padding: 6px 12px; }
+            QMainWindow {
+                background-color: #0f172a;
+            }
+            QWidget {
+                background-color: #0f172a;
+                color: #f8fafc;
+                font-size: 13px;
+            }
+            QTabWidget::pane {
+                border: 1px solid #334155;
+                background-color: #0f172a;
+                border-radius: 6px;
+                top: -1px;
+            }
+            QTabBar::tab {
+                background: #1e293b;
+                color: #94a3b8;
+                padding: 10px 24px;
+                font-weight: bold;
+                font-size: 13px;
+                border-top-left-radius: 6px;
+                border-top-right-radius: 6px;
+                border: 1px solid #334155;
+                border-bottom: none;
+                margin-right: 4px;
+            }
+            QTabBar::tab:selected {
+                background: #0f172a;
+                color: #38bdf8;
+                border: 1px solid #334155;
+                border-bottom: 2px solid #0f172a;
+            }
+            QTabBar::tab:hover:!selected {
+                background: #334155;
+                color: #f1f5f9;
+            }
+            QGroupBox {
+                font-weight: bold;
+                border: 1px solid #334155;
+                border-radius: 6px;
+                margin-top: 14px;
+                padding: 16px 12px 12px 12px;
+                background-color: #1e293b;
+            }
+            QGroupBox::title {
+                subcontrol-origin: margin;
+                subcontrol-position: top left;
+                left: 14px;
+                padding: 0 6px;
+                color: #93c5fd;
+                background-color: #1e293b;
+                border-radius: 3px;
+            }
+            QLabel {
+                background-color: transparent;
+                color: #f8fafc;
+            }
+            QLineEdit {
+                background-color: #0f172a;
+                color: #f8fafc;
+                border: 1px solid #334155;
+                border-radius: 5px;
+                padding: 7px 10px;
+                selection-background-color: #2563eb;
+                selection-color: #ffffff;
+            }
+            QLineEdit:focus {
+                border: 1px solid #38bdf8;
+            }
+            QLineEdit:read-only {
+                background-color: #141e33;
+                color: #cbd5e1;
+            }
+            QPushButton {
+                background-color: #334155;
+                color: #f8fafc;
+                border: 1px solid #475569;
+                border-radius: 5px;
+                padding: 7px 14px;
+                font-weight: 500;
+            }
+            QPushButton:hover {
+                background-color: #475569;
+                border-color: #64748b;
+            }
+            QPushButton:pressed {
+                background-color: #1e293b;
+            }
+            QPushButton:disabled {
+                background-color: #1e293b;
+                color: #64748b;
+                border-color: #334155;
+            }
+            QRadioButton {
+                color: #f8fafc;
+                spacing: 8px;
+                background-color: transparent;
+            }
+            QRadioButton::indicator {
+                width: 16px;
+                height: 16px;
+                border-radius: 8px;
+                border: 1px solid #64748b;
+                background-color: #0f172a;
+            }
+            QRadioButton::indicator:checked {
+                background-color: #2563eb;
+                border: 3px solid #93c5fd;
+            }
+            QRadioButton::indicator:hover {
+                border-color: #38bdf8;
+            }
+            QComboBox {
+                background-color: #0f172a;
+                color: #f8fafc;
+                border: 1px solid #334155;
+                border-radius: 5px;
+                padding: 6px 10px;
+            }
+            QComboBox:focus {
+                border: 1px solid #38bdf8;
+            }
+            QComboBox::drop-down {
+                border: none;
+                width: 20px;
+            }
+            QComboBox QAbstractItemView {
+                background-color: #1e293b;
+                color: #f8fafc;
+                selection-background-color: #2563eb;
+                selection-color: #ffffff;
+                border: 1px solid #334155;
+                padding: 4px;
+            }
+            QDoubleSpinBox {
+                background-color: #0f172a;
+                color: #f8fafc;
+                border: 1px solid #334155;
+                border-radius: 5px;
+                padding: 6px 8px;
+            }
+            QDoubleSpinBox:focus {
+                border: 1px solid #38bdf8;
+            }
+            QProgressBar {
+                background-color: #1e293b;
+                border: 1px solid #334155;
+                border-radius: 6px;
+                text-align: center;
+                color: #f8fafc;
+                font-weight: bold;
+                height: 18px;
+            }
+            QProgressBar::chunk {
+                background-color: #2563eb;
+                border-radius: 5px;
+            }
+            QToolTip {
+                background-color: #1e293b;
+                color: #f8fafc;
+                border: 1px solid #475569;
+                padding: 6px;
+                border-radius: 4px;
+            }
         """)

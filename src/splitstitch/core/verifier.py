@@ -46,8 +46,9 @@ def count_video_frames(path: Path | str) -> int:
         "-print_format", "json",
         str(path),
     ]
-    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
-    data = json.loads(res.stdout)
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    stdout_text = res.stdout.decode("utf-8", errors="replace")
+    data = json.loads(stdout_text)
     streams = data.get("streams", [])
     if not streams:
         raise ValueError(f"No video streams found in {path}")

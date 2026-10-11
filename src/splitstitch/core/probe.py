@@ -72,8 +72,9 @@ def get_ffmpeg_version() -> Optional[str]:
     """Retrieve FFmpeg version string."""
     try:
         bin_path = get_ffmpeg_path()
-        res = subprocess.run([bin_path, "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
-        first_line = res.stdout.splitlines()[0]
+        res = subprocess.run([bin_path, "-version"], stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+        stdout_text = res.stdout.decode("utf-8", errors="replace")
+        first_line = stdout_text.splitlines()[0]
         # Example: 'ffmpeg version 7.0.2-static ...'
         parts = first_line.split()
         if len(parts) >= 3 and parts[0] == "ffmpeg" and parts[1] == "version":
@@ -101,8 +102,9 @@ def probe_video(video_path: Path | str, fast: bool = False) -> ProbeResult:
         str(path),
     ]
 
-    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True, check=True)
-    data = json.loads(res.stdout)
+    res = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+    stdout_text = res.stdout.decode("utf-8", errors="replace")
+    data = json.loads(stdout_text)
 
     video_stream = None
     for s in data.get("streams", []):
@@ -166,8 +168,9 @@ def probe_video(video_path: Path | str, fast: bool = False) -> ProbeResult:
             "-of", "csv=p=0",
             str(path),
         ]
-        pts_res = subprocess.run(pts_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
-        for line in pts_res.stdout.strip().splitlines():
+        pts_res = subprocess.run(pts_cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        pts_text = pts_res.stdout.decode("utf-8", errors="replace")
+        for line in pts_text.strip().splitlines():
             parts = line.split(",")
             if parts and parts[0]:
                 try:

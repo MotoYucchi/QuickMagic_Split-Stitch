@@ -39,9 +39,9 @@ def run_ffmpeg_encode(
         cmd,
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
-        text=True,
+        encoding="utf-8",
+        errors="replace",
         bufsize=1,
-        universal_newlines=True,
     )
 
     stderr_lines: List[str] = []
