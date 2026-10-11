@@ -5,6 +5,12 @@
 
 set -e
 
+# Ensure ~/.local/bin and ~/.cargo/bin are in PATH
+export PATH="$HOME/.local/bin:$HOME/.cargo/bin:$PATH"
+
+# Move to the script's directory
+cd "$(dirname "$0")"
+
 echo ""
 echo "============================================================"
 echo "  Split & Stitch for QuickMagicMotion - Launcher"
