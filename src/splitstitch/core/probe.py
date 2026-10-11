@@ -179,6 +179,7 @@ def probe_video(video_path: Path | str, fast: bool = False) -> ProbeResult:
                     pass
 
     if pts_list:
+        pts_list.sort()
         timeline = FrameTimeline.create_vfr(pts_list, nominal_fps=r_fps)
         frame_count = len(pts_list)
         first_pts = pts_list[0]

@@ -79,7 +79,7 @@ class FrameTimeline:
 
     @classmethod
     def create_vfr(cls, pts_seconds: Sequence[float], nominal_fps: Fraction | None = None) -> FrameTimeline:
-        pts = np.asarray(pts_seconds, dtype=np.float64)
+        pts = np.sort(np.asarray(pts_seconds, dtype=np.float64))
         if len(pts) < 2:
             nom = nominal_fps or Fraction(30, 1)
             return cls(pts_seconds=pts, nominal_fps=nom, is_vfr=False)
@@ -109,9 +109,14 @@ class FrameTimeline:
             step = float(1 / self.nominal_fps)
             return float(self.pts_seconds[0] + frame_idx * step)
 
-        # For VFR: linear interpolation on pts_seconds
-        idx_clamped = np.clip(frame_idx, 0, len(self.pts_seconds) - 1)
-        return float(np.interp(idx_clamped, np.arange(len(self.pts_seconds)), self.pts_seconds))
+        # For VFR: if within range, interpolate. If beyond range, extrapolate using nominal step.
+        N = len(self.pts_seconds)
+        step = float(1 / self.nominal_fps)
+        if frame_idx < 0:
+            return float(self.pts_seconds[0] + frame_idx * step)
+        elif frame_idx >= N:
+            return float(self.pts_seconds[-1] + (frame_idx - (N - 1)) * step)
+        return float(np.interp(frame_idx, np.arange(N), self.pts_seconds))
 
     def time_to_frame(self, time_sec: float) -> float:
         """Inverse mapping: timestamp to continuous frame index."""
