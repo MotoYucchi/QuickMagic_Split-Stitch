@@ -30,11 +30,24 @@ def build_ffmpeg_chunk_cmd(
     t_start = probe.timeline.get_time(start_frame)
     t_end = probe.timeline.get_time(end_frame)
 
+    # Calculate midpoint boundaries for trim to avoid boundary-frame inclusion
+    # caused by floating-point rounding or container PTS jitter.
+    # For start: midpoint between (start_frame - 1) and start_frame (if start_frame > 0)
+    if start_frame == 0:
+        trim_start_time = 0.0
+    else:
+        t_prev = probe.timeline.get_time(start_frame - 1)
+        trim_start_time = (t_prev + t_start) / 2.0
+
+    # For end: midpoint between (end_frame - 1) and end_frame to strictly drop frame end_frame
+    t_last = probe.timeline.get_time(end_frame - 1)
+    trim_end_time = (t_last + t_end) / 2.0
+
     # Input seek with safety lead-in (2.0s before start frame) for fast keyframe decoding
     lead_in = 2.0
     seek_sec = max(0.0, t_start - lead_in)
-    rel_start_pts = t_start - seek_sec
-    rel_end_pts = t_end - seek_sec
+    rel_start_pts = max(0.0, trim_start_time - seek_sec)
+    rel_end_pts = max(rel_start_pts, trim_end_time - seek_sec)
 
     declared_fps = parse_fraction(plan_config.declared_fps)
     fd_str = f"{declared_fps.numerator}/{declared_fps.denominator}"
@@ -80,6 +93,7 @@ def build_ffmpeg_chunk_cmd(
         "-dn",
         "-vf", vf_chain,
         "-r", fd_str,
+        "-frames:v", str(chunk.upload_frame_count),
         "-c:v", plan_config.encode.codec,
         "-preset", plan_config.encode.preset,
         "-crf", str(plan_config.encode.crf),
