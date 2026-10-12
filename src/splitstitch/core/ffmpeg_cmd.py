@@ -26,29 +26,6 @@ def build_ffmpeg_chunk_cmd(
     start_frame = chunk.source_start_frame
     end_frame = chunk.source_end_frame
 
-    # Retrieve exact PTS for start and end from timeline
-    t_start = probe.timeline.get_time(start_frame)
-    t_end = probe.timeline.get_time(end_frame)
-
-    # Calculate midpoint boundaries for trim to avoid boundary-frame inclusion
-    # caused by floating-point rounding or container PTS jitter.
-    # For start: midpoint between (start_frame - 1) and start_frame (if start_frame > 0)
-    if start_frame == 0:
-        trim_start_time = 0.0
-    else:
-        t_prev = probe.timeline.get_time(start_frame - 1)
-        trim_start_time = (t_prev + t_start) / 2.0
-
-    # For end: midpoint between (end_frame - 1) and end_frame to strictly drop frame end_frame
-    t_last = probe.timeline.get_time(end_frame - 1)
-    trim_end_time = (t_last + t_end) / 2.0
-
-    # Input seek with safety lead-in (2.0s before start frame) for fast keyframe decoding
-    lead_in = 2.0
-    seek_sec = max(0.0, t_start - lead_in)
-    rel_start_pts = max(0.0, trim_start_time - seek_sec)
-    rel_end_pts = max(rel_start_pts, trim_end_time - seek_sec)
-
     declared_fps = parse_fraction(plan_config.declared_fps)
     fd_str = f"{declared_fps.numerator}/{declared_fps.denominator}"
 
@@ -57,25 +34,39 @@ def build_ffmpeg_chunk_cmd(
     # Video Filter chain
     filters: List[str] = []
 
-    # 1. Precise trim filter based on relative seconds
-    filters.append(f"trim=start={rel_start_pts:.6f}:end={rel_end_pts:.6f}")
+    # Frame slicing strategy:
+    # 1. For chunk 1 (start_frame == 0): Start from video beginning without seeking or trim-start
+    #    to eliminate any initial PTS jitter or container offset issues.
+    # 2. For chunks > 1: Seek with -copyts so presentation timestamps remain absolute,
+    #    then trim starting at the midpoint between (start_frame - 1) and start_frame.
+    # 3. We NEVER specify 'trim=end=...' because floating-point timestamp rounding or non-integer
+    #    FPS (e.g. 59.94, 59.999, 23.976, VFR) can cause FFmpeg to drop the last 1-2 frames prematurely.
+    #    Instead, exact frame count is strictly and deterministically bounded by '-frames:v'.
+    seek_args: List[str] = []
+    if start_frame > 0:
+        t_start = probe.timeline.get_time(start_frame)
+        t_prev = probe.timeline.get_time(start_frame - 1)
+        trim_start_time = (t_prev + t_start) / 2.0
+        lead_in = 2.0
+        seek_sec = max(0.0, t_start - lead_in)
+        seek_args = ["-ss", f"{seek_sec:.6f}", "-copyts"]
+        filters.append(f"trim=start={trim_start_time:.6f}")
 
-    # 2. Strict frame re-timestamping: N / (FD * TB)
-    # This guarantees 1:1 input-frame to output-frame mapping without duplicate or dropped frames
+    # Re-timestamp frames sequentially to 1/declared_fps interval
     filters.append(f"setpts=N/({fd_str}*TB)")
 
-    # 3. Autorotate if needed (ffmpeg default handles displaymatrix, but normalize filter ensures it)
+    # Autorotate if needed (ffmpeg default handles displaymatrix, but normalize filter ensures it)
     if abs(probe.rotation) != 0:
         filters.append("autorotate")
 
-    # 4. Color tone mapping if HDR
+    # Color tone mapping if HDR
     if probe.is_hdr:
         filters.append("zscale=t=linear:npl=100,format=gbrpf32le,zscale=p=bt709:m=bt709:t=bt709,tonemap=tonemap=hable")
 
-    # 5. Scale filter preserving aspect ratio with Lanczos
+    # Scale filter preserving aspect ratio with Lanczos
     filters.append(f"scale={target_w}:{target_h}:flags=lanczos")
 
-    # 6. Normalize pixel format
+    # Normalize pixel format
     filters.append("format=yuv420p")
 
     vf_chain = ",".join(filters)
@@ -85,14 +76,14 @@ def build_ffmpeg_chunk_cmd(
         "-hide_banner",
         "-y",
         "-progress", "pipe:1",
-        "-ss", f"{seek_sec:.6f}",
+        *seek_args,
         "-i", str(probe.path),
         "-map", "0:v:0",
         "-an",
         "-sn",
         "-dn",
         "-vf", vf_chain,
-        "-r", fd_str,
+        "-fps_mode", "passthrough",
         "-frames:v", str(chunk.upload_frame_count),
         "-c:v", plan_config.encode.codec,
         "-preset", plan_config.encode.preset,
